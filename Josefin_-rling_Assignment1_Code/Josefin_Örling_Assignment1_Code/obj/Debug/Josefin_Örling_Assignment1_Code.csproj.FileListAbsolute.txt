@@ -1,7 +1,0 @@
-C:\Users\joxx1\Source\Repos\j-orling\Josefin_-rling_Assignment1_Code\Josefin_Örling_Assignment1_Code\bin\Debug\Josefin_Örling_Assignment1_Code.exe.config
-C:\Users\joxx1\Source\Repos\j-orling\Josefin_-rling_Assignment1_Code\Josefin_Örling_Assignment1_Code\bin\Debug\Josefin_Örling_Assignment1_Code.exe
-C:\Users\joxx1\Source\Repos\j-orling\Josefin_-rling_Assignment1_Code\Josefin_Örling_Assignment1_Code\bin\Debug\Josefin_Örling_Assignment1_Code.pdb
-C:\Users\joxx1\Source\Repos\j-orling\Josefin_-rling_Assignment1_Code\Josefin_Örling_Assignment1_Code\obj\Debug\Josefin_Örling_Assignment1_Code.csproj.AssemblyReference.cache
-C:\Users\joxx1\Source\Repos\j-orling\Josefin_-rling_Assignment1_Code\Josefin_Örling_Assignment1_Code\obj\Debug\Josefin_Örling_Assignment1_Code.csproj.CoreCompileInputs.cache
-C:\Users\joxx1\Source\Repos\j-orling\Josefin_-rling_Assignment1_Code\Josefin_Örling_Assignment1_Code\obj\Debug\Josefin_Örling_Assignment1_Code.exe
-C:\Users\joxx1\Source\Repos\j-orling\Josefin_-rling_Assignment1_Code\Josefin_Örling_Assignment1_Code\obj\Debug\Josefin_Örling_Assignment1_Code.pdb
