@@ -7,109 +7,127 @@ using System.Threading.Tasks;
 
 namespace Josefin_Örling_Assignment1_Code
 {
-    class Tree
+    public class Tree
     {
-        public List<Item> allItems;
-        public int maxWeight = 420;
+        #region Fields
+        /// <summary>
+        /// list of all items
+        /// </summary>
+        List<Item> allItems;
+        /// <summary>
+        /// Max weight
+        /// </summary>
+        int maxWeight;
+        /// <summary>
+        /// Max items
+        /// </summary>
+        int maxItems;
+        #endregion Fields
 
-        public Tree(List<Item> items)
+        #region Constructors
+        /// <summary>
+        /// Constructor with three parameters
+        /// </summary>
+        /// <param name="items"></param>
+        /// <param name="maxWeight"></param>
+        /// <param name="maxItems"></param>
+        public Tree(List<Item> items, int maxWeight, int maxItems)
         {
             allItems = items;
+            this.maxWeight = maxWeight;
+            this.maxItems = maxItems;
         }
-        // Breadth-first
+
+        #endregion Constructors
+
+        #region Methods
+        /// <summary>
+        /// Breadth-first search of the tree.
+        /// Queue (FIFO : First In First Out)
+        /// </summary>
+        /// <returns> A node contains the best solution</returns>
         public Node BFS()
         {
-            // Two nodes - one for keeping track of the best solution, one for enqueueing an empty root
             Node best = new Node();
-            Node root = new Node();
-            // Queue, since BFS uses FIFO
             Queue<Node> tree = new Queue<Node>();
-            tree.Enqueue(root);
+            tree.Enqueue(new Node());
             while(tree.Any())
             {
-                Node n = tree.Dequeue();
+                Node node = tree.Dequeue();
                 // Goal check
-                if(best.totalValue < n.totalValue && n.totalWeight < maxWeight)
+                if(best.TotalValue < node.TotalValue && node.TotalWeight < maxWeight)
                 {
-                    // Copy all values of current node to the best one to save it in memory
-                    best.totalValue = n.totalValue;
-                    best.totalWeight = n.totalWeight;
-                    best.isIncluded = n.isIncluded;
-                    best.viewedItem = n.viewedItem;
-                    best.parent = n.parent;
+                    best = node;
                 }
                 
                 // No need to add more nodes to a branch that already exceeded the weight limit
                 // No new items to add after item 11
-                if(n.totalWeight < maxWeight && n.viewedItem.id != 11)
+                if(node.TotalWeight < maxWeight && node.ViewedItem.Id != maxItems)
                 {
                     // Two new nodes to enqueue, one with the item and one without
-                    Node newNodeItemInc = new Node(allItems[n.viewedItem.id], n, true);
+                    Node newNodeItemInc = new Node(allItems[node.ViewedItem.Id], node, true);
                     // Item id helps keep track of which layer we're operating at
-                    Node newNodeItemNotInc = new Node(allItems[n.viewedItem.id], n, false);
+                    Node newNodeItemNotInc = new Node(allItems[node.ViewedItem.Id], node, false);
                     tree.Enqueue(newNodeItemInc);
                     tree.Enqueue(newNodeItemNotInc);
                 }
 
             }
-            // Display all the packed items
-            DisplayItems(best);
             return best;
         }
 
-        // Depth-first
+        /// <summary>
+        /// Depth-first search of the tree.
+        /// Stack (LIFO: Last In First Out)
+        /// </summary>
+        /// <returns> A node contains the best solution</returns>
         public Node DFS()
         {
-            // Two empty nodes - one for saving the best solution, and one to have as an empty root
             Node best = new Node();
-            Node root = new Node();
-            // Stack, since DFS uses LIFO
             Stack<Node> tree = new Stack<Node>();
-            tree.Push(root);
+            tree.Push(new Node());
             while (tree.Any())
             {
-                Node n = tree.Pop();
+                Node node = tree.Pop();
                 // Goal check
-                if (best.totalValue < n.totalValue && n.totalWeight < maxWeight)
+                if (best.TotalValue < node.TotalValue && node.TotalWeight < maxWeight)
                 {
-                    // Copy over all the values of the current node to the best to save it in memory
-                    best.totalValue = n.totalValue;
-                    best.totalWeight = n.totalWeight;
-                    best.isIncluded = n.isIncluded;
-                    best.viewedItem = n.viewedItem;
-                    best.parent = n.parent;
+                    best = node;
                 }
 
                 // If the max weight is reached, there's no need to keep looking
                 // The last layer doesn't need any children - there's nothing left to push
-                if (n.totalWeight < maxWeight && n.viewedItem.id != 11)
+                if (node.TotalWeight < maxWeight && node.ViewedItem.Id != maxItems)
                 {
                     // Node where the checked item is included and should be added to the weight and value calculations
-                    Node newNodeItemInc = new Node(allItems[n.viewedItem.id], n, true);
+                    Node newNodeItemInc = new Node(allItems[node.ViewedItem.Id], node, true);
                     // Node where the checked item isn't included, but kept as a way to know which layer we're working on
-                    Node newNodeItemNotInc = new Node(allItems[n.viewedItem.id], n, false);
+                    Node newNodeItemNotInc = new Node(allItems[node.ViewedItem.Id], node, false);
                     tree.Push(newNodeItemInc);
                     tree.Push(newNodeItemNotInc);
                 }
 
             }
-            // Iterate through all added items and display them
-            DisplayItems(best);
             return best;
         }
 
-        // Help function to display the optimal solution
+        /// <summary>
+        /// Help function to display the optimal solution
+        /// </summary>
+        /// <param name="node"></param>
         public void DisplayItems(Node node)
         {
-            if(node.parent != null)
+            if (node.Parent != null)
             {
-                DisplayItems(node.parent);
+                DisplayItems(node.Parent);
             }
-            if(node.isIncluded)
+            if (node.IsIncluded)
             {
-                Console.WriteLine("Item " + node.viewedItem.id + " with weight " + node.viewedItem.weight + " and value " + node.viewedItem.value + " was included.");
+               // Console.WriteLine("Item " + node.ViewedItem.Id + " with weight " + node.ViewedItem.Weight + " and value " + node.ViewedItem.Value + " was included.");
+                Console.WriteLine($"Item:\t{node.ViewedItem.Id}\t {node.ViewedItem.Weight}\t {node.ViewedItem.Value}\twas included.");
             }
         }
 
+        #endregion Methods
     }
 }
