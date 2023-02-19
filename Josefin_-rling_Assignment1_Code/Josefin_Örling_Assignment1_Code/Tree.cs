@@ -1,9 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.ComponentModel;
 using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace Josefin_Örling_Assignment1_Code
 {
@@ -59,14 +56,12 @@ namespace Josefin_Örling_Assignment1_Code
                 {
                     best = node;
                 }
-                
-                // No need to add more nodes to a branch that already exceeded the weight limit
-                // No new items to add after item 11
-                if(node.TotalWeight < maxWeight && node.ViewedItem.Id != maxItems)
+                // If the max weight is reached, there's no need to keep looking
+                if (node.TotalWeight < maxWeight && node.ViewedItem.Id != maxItems)
                 {
-                    // Two new nodes to enqueue, one with the item and one without
+                    // Node where the checked item is included and should be added to the weight and value calculations
                     Node newNodeItemInc = new Node(allItems[node.ViewedItem.Id], node, true);
-                    // Item id helps keep track of which layer we're operating at
+                    // Node where the checked item isn't included, but kept as a way to know which layer we're working on
                     Node newNodeItemNotInc = new Node(allItems[node.ViewedItem.Id], node, false);
                     tree.Enqueue(newNodeItemInc);
                     tree.Enqueue(newNodeItemNotInc);
@@ -96,7 +91,6 @@ namespace Josefin_Örling_Assignment1_Code
                 }
 
                 // If the max weight is reached, there's no need to keep looking
-                // The last layer doesn't need any children - there's nothing left to push
                 if (node.TotalWeight < maxWeight && node.ViewedItem.Id != maxItems)
                 {
                     // Node where the checked item is included and should be added to the weight and value calculations
@@ -112,22 +106,31 @@ namespace Josefin_Örling_Assignment1_Code
         }
 
         /// <summary>
-        /// Help function to display the optimal solution
+        /// Help function to display the BFS solution
         /// </summary>
         /// <param name="node"></param>
-        public void DisplayItems(Node node)
+        public void DisplayBFSItems(Node node)
         {
             if (node.Parent != null)
-            {
-                DisplayItems(node.Parent);
-            }
+                DisplayBFSItems(node.Parent);
             if (node.IsIncluded)
-            {
-               // Console.WriteLine("Item " + node.ViewedItem.Id + " with weight " + node.ViewedItem.Weight + " and value " + node.ViewedItem.Value + " was included.");
                 Console.WriteLine($"Item:\t{node.ViewedItem.Id}\t {node.ViewedItem.Weight}\t {node.ViewedItem.Value}\twas included.");
-            }
+        }
+
+        /// <summary>
+        /// Help function to display the DFS solution
+        /// </summary>
+        /// <param name="node"></param>
+        public void DisplayDFSItems(Node node)
+        {
+            if (node.IsIncluded)
+                Console.WriteLine($"Item:\t{node.ViewedItem.Id}\t {node.ViewedItem.Weight}\t {node.ViewedItem.Value}\twas included.");
+            if (node.Parent != null)
+                DisplayDFSItems(node.Parent);
         }
 
         #endregion Methods
+
+
     }
 }

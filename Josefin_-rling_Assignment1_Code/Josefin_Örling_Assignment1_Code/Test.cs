@@ -1,9 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Diagnostics;
-using System.IO;
 using System.Linq;
-using System.Xml.Linq;
 
 namespace Josefin_Örling_Assignment1_Code
 {
@@ -12,19 +10,59 @@ namespace Josefin_Örling_Assignment1_Code
         /// <summary>
         /// the capacity of the bag
         /// </summary>
-        private readonly static int maxWeight = 20;
+        private int maxWeight;
 
         /// <summary>
         /// the number of items to be included in the bag 
         /// </summary>
-        private readonly static int maxItems = 11;
+        private int maxItems;
+
+        /// <summary>
+        /// Declare an Insatnce of Tree
+        /// </summary>
+        Tree tree;
+        /// <summary>
+        /// Declare an instance of PerformanceCounter 
+        /// </summary>
+        PerformanceCounter Cpu;
+        /// <summary>
+        /// Declare an instance of PerformanceCounter 
+        /// </summary>
+        PerformanceCounter Ram;
+
+        /// <summary>
+        /// Declare an instance of StopWatch for BFS
+        /// </summary>
+        Stopwatch StopWatchBFS;
+
+        /// <summary>
+        /// Declare an instance of StopWatch for DFS
+        /// </summary>
+        Stopwatch StopWatchDFS;
+
+        /// <summary>
+        /// constructor with two parameters 
+        /// </summary>
+        /// <param name="maxWeight">the capacity of the bag</param>
+        /// <param name="maxItems">the number of items to be included in the bag </param>
+        public Test(int maxWeight, int maxItems)
+        {
+            this.maxWeight = maxWeight;
+            this.maxItems = maxItems;
+            tree = new Tree(InitializeItems(), maxWeight, maxItems);
+            Cpu = new PerformanceCounter("Processor", "% Processor Time", "_Total");
+            Ram = new PerformanceCounter("Memory", "Available MBytes");
+            StopWatchBFS = new Stopwatch();
+            StopWatchDFS = new Stopwatch();
+        }
+
 
         #region Methods
         /// <summary>
         /// Method that initializes the items.
         /// </summary>
         /// <returns></returns>
-        private static List<Item> InitializeItems()
+        private List<Item> InitializeItems()
         {
             List<Item> items = new List<Item>();
             Random rnd = new Random();
@@ -32,76 +70,77 @@ namespace Josefin_Örling_Assignment1_Code
             {
                 items.Add(new Item(i, rnd.Next(1, 100), rnd.Next(1, 100)));
             }
+            Console.WriteLine(String.Join("\n", items.Select(x => $"{x.Id}\t{x.Weight}\t{x.Value}")));
             return items;
         }
 
         /// <summary>
         /// Method to test the breadth-first search and depth-first search 
         /// and measure the time it takes to run them.
+        /// Calls the methods MeasureBFS and MeasureDFS.
         /// </summary>
-        public static void Run()
+        public void Run()
         {
-            //List<Item> items = GetItems();
-            List<Item> items = InitializeItems();
-            Console.WriteLine(String.Join("\n", items.Select(x => $"{x.Id}\t{x.Weight}\t{x.Value}")));
-            Tree tree = new Tree(items, maxWeight, maxItems);
-
-            // Measure the time it takes to run the BFS algorithm
-            Stopwatch StopWatchBFS = new Stopwatch();
-            StopWatchBFS.Start();
-            Node bestBFS = tree.BFS();
-            StopWatchBFS.Stop();
-            Console.WriteLine("\n*********************************************");
-            Console.WriteLine($"The best combination for BFS starting...");
-            tree.DisplayItems(bestBFS);
-            TimeSpan ElapsedSpanBFS = StopWatchBFS.Elapsed;
-            Console.WriteLine($"---------------------------------------------");
-            Console.WriteLine($"Total:\t\t({bestBFS.TotalWeight})\t({bestBFS.TotalValue})");
-            Console.WriteLine($"---------------------------------------------");
-            // Console.WriteLine($"BFS: Total weight: {bestBFS.TotalWeight} Total value: {bestBFS.TotalValue} ");
-            Console.WriteLine($"minutes:({ElapsedSpanBFS.Minutes}), seconds:({ElapsedSpanBFS.Seconds}), milliseconds:({ElapsedSpanBFS.Milliseconds}), Microsecond:({ElapsedSpanBFS.Microseconds}), Nanosecond: ({ElapsedSpanBFS.Nanoseconds}).");
-            Console.WriteLine($"BFS finished in: {(ElapsedSpanBFS.Minutes * 6000) + (ElapsedSpanBFS.Seconds * 1000) + ElapsedSpanBFS.Milliseconds} ms.");
-
-            // Measure the time it takes to run the DFS algorithm
-            Stopwatch StopWatchDFS = new Stopwatch();
-            StopWatchDFS.Start();
-            Node bestDFS = tree.DFS();
-            StopWatchDFS.Stop();
-            Console.WriteLine("\n*********************************************");
-            Console.WriteLine($"The best combination for DFS starting...");
-            tree.DisplayItems(bestDFS);
-            TimeSpan ElapsedSpanDFS = StopWatchDFS.Elapsed;
-            Console.WriteLine($"---------------------------------------------");
-            Console.WriteLine($"Total:\t\t({bestDFS.TotalWeight})\t({bestDFS.TotalValue})");
-            Console.WriteLine($"---------------------------------------------");
-            Console.WriteLine($"minutes:({ElapsedSpanDFS.Minutes}), seconds:({ElapsedSpanDFS.Seconds}), milliseconds:({ElapsedSpanDFS.Milliseconds}), Microsecond:({ElapsedSpanDFS.Microseconds}), Nanosecond: ({ElapsedSpanDFS.Nanoseconds}).");
-            Console.WriteLine($"DFS finished in: {(ElapsedSpanDFS.Minutes * 6000) + (ElapsedSpanDFS.Seconds * 1000) + ElapsedSpanDFS.Milliseconds} ms.");
+            MeasureBFS();
+            MeasureDFS();
         }
 
         /// <summary>
-        /// Get items from file
+        /// Method to measure the time, memory and CPU that it takes to run the BFS algorithm
         /// </summary>
-        /// <returns></returns>
-        public static List<Item> GetItems()
+        private void MeasureBFS()
         {
-            int i = 1;
-            List<Item> items = new List<Item>();
-            string path = AppDomain.CurrentDomain.BaseDirectory;
-            StreamReader readFrom = new StreamReader($"{path.Substring(0, path.LastIndexOf("\\bin"))}\\Assignment 1 knapsack.txt");
-            while (i < 8)
-            {
-                readFrom.ReadLine();
-                i++;
-            }
-            while (i < 19)
-            {
-                string[] split = readFrom.ReadLine().Split();
-                Item newItem = new Item(int.Parse(split[0]), int.Parse(split[2]), int.Parse(split[1]));
-                items.Add(newItem);
-                i++;
-            }
-            return items;
+            float cpuBFSStart = Cpu.NextValue();
+            long ramBFSStart = Ram.RawValue;
+            StopWatchBFS.Start();
+            Node bestBFS = tree.BFS();
+            StopWatchBFS.Stop();
+            float cpuBFSEnd = Cpu.NextValue();
+            long ramBFSEnd = Ram.RawValue;
+            Print(bestBFS, StopWatchBFS.Elapsed, cpuBFSEnd - cpuBFSStart, ramBFSStart - ramBFSEnd, "BFS");
         }
+
+        /// <summary>
+        /// Method to measure the time, memory and CPU that it takes to run the DFS algorithm
+        /// </summary>
+        private void MeasureDFS()
+        {
+            float cpuDFSStart = Cpu.NextValue();
+            long ramDFSStart = Ram.RawValue;
+            StopWatchDFS.Start();
+            Node bestDFS = tree.DFS();
+            StopWatchDFS.Stop();
+            float cpuDFSEnd = Cpu.NextValue();
+            long ramDFSEnd = Ram.RawValue;
+            Print(bestDFS, StopWatchDFS.Elapsed, cpuDFSEnd - cpuDFSStart, ramDFSStart - ramDFSEnd, "DFS");
+        }
+        
+        /// <summary>
+        /// Prints the results
+        /// </summary>
+        /// <param name="node"></param>
+        /// <param name="ts"></param>
+        /// <param name="cpu"></param>
+        /// <param name="ram"></param>
+        /// <param name="alg"></param>
+        private void Print(Node node, TimeSpan ts, float cpu, long ram, string alg)
+        {
+            Console.WriteLine($"\nThe best combination for {alg} starting...");
+            Console.WriteLine("*********************************************");
+            if (alg == "DFS")
+                tree.DisplayDFSItems(node);
+            else
+                tree.DisplayBFSItems(node);
+            Console.WriteLine($"---------------------------------------------");
+            Console.WriteLine($"Total:\t\t({node.TotalWeight})\t({node.TotalValue})");
+            Console.WriteLine($"---------------------------------------------");
+            Console.WriteLine($"Minutes:({ts.Minutes}), seconds:({ts.Seconds}), milliseconds:({ts.Milliseconds}), " +
+            $"microsecond:({ts.Microseconds}), nanosecond: ({ts.Nanoseconds}).");
+            Console.WriteLine($"{alg} finished in: {(ts.Minutes * 6000) + (ts.Seconds * 1000) + ts.Milliseconds} ms.");
+            Console.WriteLine($"CPU usage: {cpu}%\nRAM usage: {ram} MB");
+            Console.WriteLine("*********************************************");
+        }
+
         #endregion Methods
     }
 }
