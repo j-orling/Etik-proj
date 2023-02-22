@@ -7,16 +7,7 @@ namespace Josefin_Örling_Assignment1_Code
 {
     public class Test
     {
-        /// <summary>
-        /// the capacity of the bag
-        /// </summary>
-        private int maxWeight;
-
-        /// <summary>
-        /// the number of items to be included in the bag 
-        /// </summary>
-        private int maxItems;
-
+        #region Fields
         /// <summary>
         /// Declare an Insatnce of Tree
         /// </summary>
@@ -39,39 +30,44 @@ namespace Josefin_Örling_Assignment1_Code
         /// Declare an instance of StopWatch for DFS
         /// </summary>
         Stopwatch StopWatchDFS;
+        #endregion Fields
 
+        #region Constructors
         /// <summary>
-        /// constructor with two parameters 
+        /// constructor with one parameters 
         /// </summary>
-        /// <param name="maxWeight">the capacity of the bag</param>
-        /// <param name="maxItems">the number of items to be included in the bag </param>
-        public Test(int maxWeight, int maxItems)
+        /// <param name="size">the size of items in the list</param>
+        public Test(int size)
         {
-            this.maxWeight = maxWeight;
-            this.maxItems = maxItems;
-            tree = new Tree(InitializeItems(), maxWeight, maxItems);
+            (List<Item> items, int maxWeight) = InitializeItems(size);
+            tree = new Tree(items, maxWeight, size);
             Cpu = new PerformanceCounter("Processor", "% Processor Time", "_Total");
             Ram = new PerformanceCounter("Memory", "Available MBytes");
             StopWatchBFS = new Stopwatch();
             StopWatchDFS = new Stopwatch();
         }
-
+        #endregion Constructors
 
         #region Methods
         /// <summary>
         /// Method that initializes the items.
         /// </summary>
         /// <returns></returns>
-        private List<Item> InitializeItems()
+        private (List<Item>, int) InitializeItems(int size)
         {
             List<Item> items = new List<Item>();
             Random rnd = new Random();
-            for (int i = 1; i <= maxItems; i++)
+            for (int i = 1; i <= size; i++)
             {
                 items.Add(new Item(i, rnd.Next(1, 100), rnd.Next(1, 100)));
             }
+      
+            double SumWeight = items.Sum(x => x.Weight);
+            int maxWeight = (int)(SumWeight * 0.6);
+            Console.WriteLine("Id\tWeight\tValue\n");
             Console.WriteLine(String.Join("\n", items.Select(x => $"{x.Id}\t{x.Weight}\t{x.Value}")));
-            return items;
+            Console.WriteLine($"Total weight: {SumWeight} Max weight: " + maxWeight);
+            return (items, maxWeight);
         }
 
         /// <summary>
@@ -127,6 +123,7 @@ namespace Josefin_Örling_Assignment1_Code
         {
             Console.WriteLine($"\nThe best combination for {alg} starting...");
             Console.WriteLine("*********************************************");
+            Console.WriteLine("\tId\tWeight\tValue\t\n");
             if (alg == "DFS")
                 tree.DisplayDFSItems(node);
             else
