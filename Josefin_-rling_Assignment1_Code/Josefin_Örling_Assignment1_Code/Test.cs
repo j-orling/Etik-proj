@@ -59,7 +59,7 @@ namespace Josefin_Örling_Assignment1_Code
             Random rnd = new Random();
             for (int i = 1; i <= size; i++)
             {
-                items.Add(new Item(i, rnd.Next(1, 100), rnd.Next(1, 100)));
+                items.Add(new Item(i, rnd.Next(5, 20), rnd.Next(1, 15)));
             }
       
             double SumWeight = items.Sum(x => x.Weight);
@@ -132,9 +132,10 @@ namespace Josefin_Örling_Assignment1_Code
             Console.WriteLine($"Total:\t\t({node.TotalWeight})\t({node.TotalValue})");
             Console.WriteLine($"---------------------------------------------");
             Console.WriteLine($"Minutes:({ts.Minutes}), seconds:({ts.Seconds}), milliseconds:({ts.Milliseconds}), " +
-            $"microsecond:({ts.Microseconds}), nanosecond: ({ts.Nanoseconds}).");
-            Console.WriteLine($"{alg} finished in: {(ts.Minutes * 6000) + (ts.Seconds * 1000) + ts.Milliseconds} ms.");
+            $"microseconds:({ts.Microseconds}), nanoseconds: ({ts.Nanoseconds}).");
+            Console.WriteLine($"{alg} finished in: {ts.TotalMicroseconds} microseconds.");
             Console.WriteLine($"CPU usage: {cpu}%\nRAM usage: {ram} MB");
+            Console.WriteLine($"The depth of the best node is d: {node.ViewedItem.Id}");
             Console.WriteLine("*********************************************");
         }
 
